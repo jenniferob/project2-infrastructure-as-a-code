@@ -7,7 +7,7 @@ Parameters:
         Description: An environment name that will be prefixed to resource names
         Type: String
 Resources:
-  LBSecGroup:
+  LBSecGroup:  #Security group for the Load Balancer
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow http to our load balancer
@@ -24,7 +24,11 @@ Resources:
         FromPort: 80
         ToPort: 80
         CidrIp: 0.0.0.0/0
-  WebServerSecGroup:
+      - IpProtocol: tcp #adding new outbound custom rule to allow LBS to communicate with other apps
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 0.0.0.0/0
+  WebServerSecGroup: #webserver security group
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow http to our hosts and SSH from local only
@@ -33,8 +37,8 @@ Resources:
           !Sub "${EnvironmentName}-VPCID"
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: 8080
-        ToPort: 8080
+        FromPort: 80
+        ToPort: 80
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
         FromPort: 22
@@ -44,7 +48,7 @@ Resources:
       - IpProtocol: tcp
         FromPort: 0
         ToPort: 65535
-        CidrIp: 0.0.0.0/0
+        CidrIp: 0.0.0.0/0    
   WebAppLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -57,16 +61,16 @@ Resources:
           cd /var/www/html
           echo "Udacity Demo Web Server Up and Running!" > index.html         
       # ToDo: AMI ID of Ubuntu Linux machine. Too get one, try creating a VM from the web console. 
-      ImageId: ami-0747bdcabd34c712a
+      ImageId: ami-0ee8244746ec5d6d4
       # ToDo: Change the key-pair name, as applicable to you. 
-      KeyName: nd9990_keypair
+      KeyName: myawsinstance
       SecurityGroups:
-      - Ref: WebServerSecGroup
-      InstanceType: t3.medium
+      - Ref: WebServerSecGroup  #A reference to the web server security group created earlier
+      InstanceType: t3.small
       BlockDeviceMappings:
-      - DeviceName: "/dev/sdk"
+      - DeviceName: "/dev/sdk" #storage location
         Ebs:
-          VolumeSize: '10'
+          VolumeSize: '10'  #How much space to allocate for device
   WebAppGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -112,12 +116,12 @@ Resources:
   WebAppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      HealthCheckIntervalSeconds: 10
+      HealthCheckIntervalSeconds: 30
       HealthCheckPath: /
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 8
       HealthyThresholdCount: 2
-      Port: 8080
+      Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId: 

@@ -1,13 +1,13 @@
 [
-	{
-		"ParameterKey": "EnvironmentName",
-		"ParameterValue": "Udagram-Project-1"
-	},
-	{
-		"ParameterKey": "VpcCIDR",
-		"ParameterValue": "10.0.0.0/16"
-	},
-	{
+   {
+      "ParameterKey": "EnvironmentName",
+      "ParameterValue": "UdacityProject"
+    },
+    {
+      "ParameterKey": "VpcCIDR",
+      "ParameterValue": "10.0.0.0/16"
+    },
+    {
 		"ParameterKey": "PublicSubnet1CIDR",
 		"ParameterValue": "10.0.0.0/24"
 	},
